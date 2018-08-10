@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #capture{
+            background:url("http://www.taopic.com/uploads/allimg/140421/318743-140421213T910.jpg") no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="capture" style="padding: 10px;">
+        <h4 style="color: #000; ">Hello world!</h4>
+    </div>
+    <input type="button" value="生成图片" onclick="creat()">
+    <input type="button" value="下载图片" onclick="handleSave()">
+    <img src="" alt="" id="upImg">
+</body>
+<script src="../js/plugins/jquery.js"></script>
+<script src="./html2canvas.js"></script>
+<script>
+    function creat() {
+        html2canvas(document.querySelector("#capture")).then(canvas => {
+            document.body.appendChild(canvas)
+        });
+
+    }
+
+    function handleSave() {
+        //导出base64格式的图片数据
+        var mycanvas = document.getElementsByTagName('canvas');
+        var imgUri = mycanvas[0].toDataURL("image/png").replace("image/png", "image/octet-stream");
+        putb64(imgUri);
+
+        function putb64(base64) {
+            var pic = base64.replace(/^.*?,/, '');
+            $.ajax({
+                type: 'post',
+                url: "http://www.h5.com:9091/api/qiniu/gainToken", //获取七牛token的url,由后台提供
+                data: {
+                    sign: "cb33a4ae645f2ed7838715db80a4009e" //与后台约定好的加密数据
+                },
+                success: function (res) {
+                    var token = res.token;
+                    //把头部的data:image/png;base64,（注意有逗号）去掉
+                    var arr = base64.split(','),
+                        mime = arr[0].match(/:(.*?);/)[1],
+                        len = mime.length;
+                    var subLen = parseInt(len + 13);
+                    base64 = base64.substring(subLen);
+
+                    //通过base64编码字符流计算文件流大小函数
+                    function fileSize(str) {
+                        var fileSize;
+                        //找到等号，把等号也去掉
+                        if (str.indexOf('=') > 0) {
+                            var indexOf = str.indexOf('=');
+                            str = str.substring(0, indexOf); //把末尾的’=‘号去掉
+                        }
+                        fileSize = parseInt(str.length - (str.length / 8) * 2);
+                        return fileSize;
+                    }
+
+                    var url = "https://upload-z2.qiniup.com/putb64/" + fileSize(base64);
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4) {
+                            var keyText = xhr.responseText;
+
+                            // 把字符串转换成json                  
+                            keyText = JSON.parse(keyText);
+                            //keyText.key 是返回的图片文件名
+                            var key = keyText.key;
+                            $("#upImg").attr("src", "http://p2ohl69g3.bkt.clouddn.com/" + key)
+                        }
+                    }
+                    xhr.open("POST", url, true);
+                    xhr.setRequestHeader("Content-Type", "application/octet-stream");
+                    xhr.setRequestHeader("Authorization", "UpToken " + token);
+                    xhr.send(pic);
+                },
+                error: function () {
+                    console.log("获取七牛云token出错，请检查！！！");
+                }
+            })
+        }
+    };
+</script>
+
+</html>

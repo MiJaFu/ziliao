@@ -1,0 +1,36 @@
+ ------------ typelib.html ------------
+ 
+ 
+ <ul class="type">
+	<li>
+		<img src="" alt="">
+		<a href="javascript:;">Ïä°ü1</a>
+		<span>&#xe663</span>
+	</li>
+</ul>
+
+
+$("ul").on("mouseover","li",function (event) {
+	var e = event || window.event;
+	var x = $(this).offset().left;
+	var y = $(this).offset().top;
+	var src = $(this).children("img")[0].src;
+	var width = document.body.offsetWidth
+	$(".xuanfu img")[0].src = src;        
+	if (width - x < 220) {
+		$(".xuanfu").stop().css({
+			"left": x - 250+ "px",
+			"top": y + "px"
+		}).fadeIn(300);
+	} else {
+		
+		$(".xuanfu").stop().css({
+			"left": x + 89  + "px",
+			"top": y + "px"
+		}).fadeIn(300);
+	}
+})
+$("ul").on("mouseout","li",function () {
+
+	$(".xuanfu").stop().fadeOut(100);
+})

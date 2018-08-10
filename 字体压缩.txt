@@ -1,0 +1,28 @@
+﻿字体压缩：font-spider;
+    
+1.全局安装npm i font-spider -g
+    
+2.css文件：
+       
+ @font-face {
+            
+	font-family: 'FZLTCH_GBK';/*字体*/
+           
+	src: url('../font/FZLTCH_GBK.eot');
+            
+	src: url('../font/FZLTCH_GBK.eot?#font-spider') format('embedded-opentype'), 
+	     url('../font/FZLTCH_GBK.woff') format('woff'),
+	     url('../font/FZLTCH_GBK.ttf') format('truetype'), 
+	     url('../font/FZLTCH_GBK.svg') format('svg');
+            
+ 	font-weight: normal;
+            
+	font-style: normal;
+        }
+       
+	 *.ttf文件必须在font文件夹中
+    
+3.运行font-spider c:xignma/jasf/*.html
+（ 写html文件的绝对路径，完成压缩
+
+
